@@ -1,59 +1,72 @@
-import java.util.HashMap;
 import java.util.Scanner;
 
-class ATM {
-	
-	
-	
-	
-	
-    private HashMap<String, Customer> user = new HashMap<>();
-     Scanner sc=new Scanner(System.in);
-	
-	public void openAccount(String accountNumber, int pin) {
-        Customer newcustomer = new Customer(accountNumber, pin);
-        if (user.containsKey(accountNumber)) {
-            System.out.println("this account number already exist");
+public class ATM {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        Authentication auth = new Authentication();
+        BankAccount account = new BankAccount(1000); // Initial balance
 
-        } else {
+        System.out.println("Welcome to the ATM!");
+        System.out.println("1. Register");
+        System.out.println("2. Login");
+        System.out.print("Choose an option: ");
+        int option = scanner.nextInt();
+        scanner.nextLine(); // Consume newline
 
-            System.out.println("deposite money");
+        String accountNumber;
+        String pin;
 
-            double money = sc.nextDouble();
-            deposit(money);
-            System.out.println("Enter mobile number");
-            String number = sc.next();
-            newcustomer.savemobileNumber(number);
-            user.put(accountNumber, newcustomer);
-            System.out.print("Account successfully created");
+        if (option == 1) {
+            auth.registerUser();
+            return; // Exit after registration
         }
-    }
 
-    private double balance;
+        // Login Process
+        System.out.print("Enter your account number: ");
+        accountNumber = scanner.nextLine();
 
-    public ATM(double initialBalance) {
-        this.balance = initialBalance;
-    }
+        System.out.print("Enter your PIN: ");
+        pin = scanner.nextLine();
 
-    public void checkBalance() {
-        System.out.println("Current Balance: $" + balance);
-    }
-
-    public void deposit(double amount) {
-        if (amount > 0) {
-            balance += amount;
-            System.out.println("Successfully deposited $" + amount);
-        } else {
-            System.out.println("Invalid deposit amount.");
+        if (!auth.authenticateUser(accountNumber, pin)) {
+            System.out.println("Authentication failed! Exiting...");
+            return;
         }
-    }
 
-    public void withdraw(double amount) {
-        if (amount > 0 && amount <= balance) {
-            balance -= amount;
-            System.out.println("Successfully withdrawn $" + amount);
-        } else {
-            System.out.println("Invalid withdrawal amount or insufficient balance.");
+        // Menu loop
+        while (true) {
+            System.out.println("\nChoose an operation:");
+            System.out.println("1. Check Balance");
+            System.out.println("2. Deposit Money");
+            System.out.println("3. Withdraw Money");
+            System.out.println("4. Change PIN");
+            System.out.println("5. Exit");
+            System.out.print("Enter your choice: ");
+            int choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    System.out.println("Your current balance: $" + account.getBalance());
+                    break;
+                case 2:
+                    System.out.print("Enter deposit amount: ");
+                    double depositAmount = scanner.nextDouble();
+                    account.deposit(depositAmount);
+                    break;
+                case 3:
+                    System.out.print("Enter withdrawal amount: ");
+                    double withdrawAmount = scanner.nextDouble();
+                    account.withdraw(withdrawAmount);
+                    break;
+                case 4:
+                    auth.changePin(accountNumber);
+                    break;
+                case 5:
+                    System.out.println("Thank you for using the ATM. Goodbye!");
+                    return;
+                default:
+                    System.out.println("Invalid choice! Please try again.");
+            }
         }
     }
 }
